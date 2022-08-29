@@ -4,7 +4,7 @@ import {Issuer, generators} from 'openid-client'
 
 const app = express()
 
-const listen_port = 5555
+const listen_port = process.env.PORT || 5555
 const redirect_uri = `http://127.0.0.1:${listen_port}/callback`
 
 const neon_oauth_url = 'https://oauth2.stage.neon.tech'
@@ -42,6 +42,8 @@ app.get('/callback', async (req, res) => {
   const params = neonOAuthClient.callbackParams(req);
   const tokenSet = await neonOAuthClient.callback(redirect_uri, params, { code_verifier: codeVerifier, state });
 
+  console.log(`Bearer: ${tokenSet.access_token}`)
+
   // With access token we can talk with Neon API on behalf of the user
   const neonClient = axios.create({
     baseURL: neon_api_url,
@@ -67,3 +69,6 @@ app.get('/callback', async (req, res) => {
 app.listen(listen_port, () => {
   console.log(`Listening on port ${listen_port}`)
 })
+
+
+export default app
